@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem;
+//using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {  
     public Player2 enemy;
-    public Controls controls;
+    //public Controls controls;
     public CharacterController2D controller;
     public Animator animator;
     public Rigidbody2D rb;
@@ -41,10 +41,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Awake()
     {
-        controls = new Controls();
+        //controls = new Controls();
 
-        controls.Gameplay.Move.performed += context => move = context.ReadValue<Vector2>();
-        controls.Gameplay.Move.canceled += context => move = Vector2.zero;
+        //controls.Gameplay.Move.performed += context => move = context.ReadValue<Vector2>();
+        //controls.Gameplay.Move.canceled += context => move = Vector2.zero;
 
         //controls.Gameplay.Attack.performed += context => attackBtn = context.ReadValue<Vector2>();
         //controls.Gameplay.Attack.canceled += context => attackBtn = Vector2.zero;
@@ -58,12 +58,12 @@ public class PlayerMovement : MonoBehaviour
 
     void OnEnable()
     {
-        controls.Gameplay.Enable();
+        //controls.Gameplay.Enable();
     }
 
     void OnDisable()
     {
-        controls.Gameplay.Disable();
+        //controls.Gameplay.Disable();
     }
 
 
@@ -119,7 +119,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void Attack()
     {
-        var attackBtn = controls.Gameplay.Attack.ReadValue<Vector2>();
+        //var attackBtn = controls.Gameplay.Attack.ReadValue<Vector2>();
         Debug.Log(attacking);
         Debug.Log(attackBtn);
 
@@ -175,7 +175,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void Dashing()
     {
-        float dashDirection = controls.Gameplay.Dash.ReadValue<float>();
+        //float dashDirection = controls.Gameplay.Dash.ReadValue<float>();
         Debug.Log(dashDirection);
 
         if (dashDirection == 1){

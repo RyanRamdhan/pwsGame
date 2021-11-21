@@ -48,7 +48,7 @@ public class Player1 : MonoBehaviour
     {
         Attack();
         Move();
-        Debug.Log(jump);
+        
         Dashing();
     }
 
@@ -58,12 +58,12 @@ public class Player1 : MonoBehaviour
 
         
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;     
-        animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+        //animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
 
         if (Input.GetButtonDown("Horizontal"))
         {
             crouch = false;
-            animator.SetBool("IsCrouching", false);
+            //animator.SetBool("IsCrouching", false);
         }
 
         if (Input.GetButtonDown("Jump"))
@@ -74,11 +74,11 @@ public class Player1 : MonoBehaviour
         if (Input.GetButtonDown("Crouch"))
         {
             crouch = true;
-            animator.SetBool("IsCrouching", true);
+           // animator.SetBool("IsCrouching", true);
         } else if(Input.GetButtonUp("Crouch"))
         {
             crouch = false;
-            animator.SetBool("IsCrouching", false);
+            //animator.SetBool("IsCrouching", false);
         }
         
 
@@ -87,15 +87,16 @@ public class Player1 : MonoBehaviour
 
     public void OnLanding()
     {
-        animator.SetBool("IsJumping", false);
+        //animator.SetBool("IsJumping", false);
     }
 
     void FixedUpdate()
     {
         if(!isDashing)    
-            {controller.Move(horizontalMove * Time.fixedDeltaTime, false, jump);}
+            {controller.Move(horizontalMove * Time.fixedDeltaTime, false, jump);
+            jump = false;}
         
-        jump = false;
+        //jump = false;
         
     }
 
@@ -108,7 +109,7 @@ public class Player1 : MonoBehaviour
     //attacking and damage
     public void Attack()
     {
-        /*if (Input.GetKeyDown("j"))
+        if (Input.GetKeyDown("j"))
         {
             attacking = true;
             damage = 10;
@@ -134,7 +135,7 @@ public class Player1 : MonoBehaviour
                 attacking = false;       
             }
         }
-        */
+        
     }
 
     public void Dashing()

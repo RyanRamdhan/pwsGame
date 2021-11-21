@@ -32,7 +32,7 @@ public class Player2 : MonoBehaviour
         
 
         Debug.Log(curHealth);
-        Debug.Log(isBlocking);
+        
         if (curHealth <= 0)
         {
             Destroy(gameObject);
