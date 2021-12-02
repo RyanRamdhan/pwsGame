@@ -1,189 +1,204 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 
 public class Player1 : MonoBehaviour
-{
-    public Player2 enemy;
+{   
+
+    PlayerInputs input;
+    public HealthBar1 healthBar;
     public CharacterController2D controller;
     public Animator animator;
     public Rigidbody2D rb;
+    public Player2 enemy;
+
+    Vector2 currentMovement;
+    Vector2 currentAttack;
+
+    private float runSpeed = 10f;
+    private float horizontalMove;
+    private float nextAttackTime;
+    private float nextJumpTime;
+    private bool isJumping;
+    private bool isTouching;
+    private bool attackPressed;
+    private int damage;
+    private float playerLocation;
+    private float enemyLocation;
     
-    
-    
-    public float runSpeed = 10f;
-    public int maxHealth = 100;
-    public float dashDistance = 10f;
+    private int currentHealth;
+    private int maxHealth = 100;
+    public bool isBlocking;
 
-    bool jump = false;
-    bool crouch = false; 
-    float horizontalMove = 0f;   
-    int curHealth;
-    int damage;
-    bool attacking;
-    bool isTouching;
-    bool isBlocking;
-    bool isDashing;
-    float doubleTapTime;
-
-   
-    
-
-    KeyCode lastKeyCode;
-
-    
-
-
-
-    void Start()
+    void Awake()
     {
-        damage = 0;
-        
+        input = new PlayerInputs();
 
+        input.CharacterControls.Movement.performed += ctx => currentMovement = ctx.ReadValue<Vector2>();
+        input.CharacterControls.Movement.canceled += ctx => currentMovement = Vector2.zero;
+
+        input.CharacterControls.Attack.performed += ctx =>
+        {
+            currentAttack = ctx.ReadValue<Vector2>();
+            attackPressed = currentAttack.x != 0 || currentAttack.y != 0;
+        };
+        input.CharacterControls.Attack.canceled += ctx => currentAttack = Vector2.zero;
     }
-    void Update()
+
+    private void Start()
     {
-        Attack();
+        
+        currentHealth = maxHealth;
+        healthBar.SetMaxHealth(maxHealth);
+    }
+
+    void OnEnable() {
+        input.CharacterControls.Enable();
+    }
+
+    void OnDisable() {
+        input.CharacterControls.Disable();
+    }
+
+    void Update() {
+        //Debug.Log(currentMovement);
+        
         Move();
-        
-        Dashing();
-    }
-
-    
-
-    void Move(){
-
-        
-        horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;     
-        //animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
-
-        if (Input.GetButtonDown("Horizontal"))
+        AttackInput();
+        Blocking();
+        playerLocation = transform.position.x;
+        enemyLocation = enemy.transform.position.x;
+        Debug.Log(currentAttack);
+        if (currentHealth <= 0)
         {
-            crouch = false;
-            //animator.SetBool("IsCrouching", false);
+            Destroy(gameObject);
         }
-
-        if (Input.GetButtonDown("Jump"))
-        {
-            jump = true;
-            //animator.SetBool("IsJumping", true);
-        }
-        if (Input.GetButtonDown("Crouch"))
-        {
-            crouch = true;
-           // animator.SetBool("IsCrouching", true);
-        } else if(Input.GetButtonUp("Crouch"))
-        {
-            crouch = false;
-            //animator.SetBool("IsCrouching", false);
-        }
-        
-
-    }
-    
-
-    public void OnLanding()
-    {
-        //animator.SetBool("IsJumping", false);
     }
 
     void FixedUpdate()
     {
-        if(!isDashing)    
-            {controller.Move(horizontalMove * Time.fixedDeltaTime, false, jump);
-            jump = false;}
-        
-        //jump = false;
-        
+        controller.Move(horizontalMove * Time.fixedDeltaTime, false, isJumping);
+        isJumping = false;
     }
 
-    // health
-    public void GetHealth()
+    public void GetHealth(int damage)
     {
-        curHealth = maxHealth;
+        currentHealth -= damage;
+        healthBar.SetHealth(currentHealth);
     }
 
-    //attacking and damage
-    public void Attack()
-    {
-        if (Input.GetKeyDown("j"))
-        {
-            attacking = true;
-            damage = 10;
-        }
-        if (Input.GetKeyDown("k"))
-        {
-            attacking = true;
-            damage = 20;
-        }
-        if (Input.GetKeyDown("l"))
-        {
-            attacking = true;
-            damage = 30;
-        }
+    void Move(){
 
-        if (attacking == true)
+        
+        horizontalMove = currentMovement.x * runSpeed;
+
+        bool isCrouching = false;
+        float cooldownTime = 1.4f;
+        if (Time.time > nextJumpTime)
         {
-            if(enemy.Blocking() == false)
+            if (currentMovement.y > 0)
             {
-                enemy.GetHealth(damage);
-                
-                damage = 0;
-                attacking = false;       
+                isJumping = true;
+                animator.SetBool("IsJumping", true);
+
+                nextJumpTime = Time.time + cooldownTime;
             }
+        }
+        if (currentMovement.y < 0)
+        {
+            isCrouching = true;
+            animator.SetBool("IsCrouching", true);
+        }
+        if (currentMovement.y >= 0)
+        {
+            isCrouching = false;
+
+            animator.SetBool("IsCrouching", false);
         }
         
     }
 
-    public void Dashing()
+    void AttackInput()
     {
-        //Dashing Left
-        if(Input.GetKeyDown(KeyCode.A))
-        {
-            if(doubleTapTime > Time.time && lastKeyCode == KeyCode.A){
-                StartCoroutine(Dash(-1f));
-            }else{
-                doubleTapTime = Time.time + 0.2f;
-            }
-            lastKeyCode = KeyCode.A;
-        }
+        
+        float cooldownTime = 0.2f;
 
-        //Dashing Right
-        if(Input.GetKeyDown(KeyCode.D))
+        if (Time.time > nextAttackTime)
         {
-            if(doubleTapTime > Time.time && lastKeyCode == KeyCode.D){
-                StartCoroutine(Dash(1f));
-            }else{
-                doubleTapTime = Time.time + 0.2f;
+            if (currentAttack.x == -1)
+            {         
+                damage = 10;
             }
-            lastKeyCode = KeyCode.D;
+            if (currentAttack.y == 1)
+            {          
+                damage = 20;
+            }
+            if (currentAttack.x == 1)
+            {           
+                damage = 30;
+            }
+
+            if (attackPressed)
+            {
+                if (isTouching && enemy.Blocking())
+                {
+                    enemy.GetHealth(damage);
+                    damage = 0;
+                    nextAttackTime = Time.time + cooldownTime;
+                }
+                
+            }
         }
     }
 
-
-    public void Blocking()
+    public bool Blocking()
     {
-        if(Input.GetAxisRaw("Horizontal") == -1)
+        
+        float playerDistance = enemyLocation - playerLocation;
+        if(playerDistance <= 0)
         {
-            isBlocking = true;
-
-
-        }else
-        {
-            isBlocking = false;
+            if (currentMovement.x < 0)
+            {
+                isBlocking = true;
+            }
+            else if (currentMovement.x > 0)
+            {
+                isBlocking = false;
+            }
         }
+        if (playerDistance > 0)
+        {
+            if (currentMovement.x > 0)
+            {
+                isBlocking = true;
+            }
+            else if (currentMovement.x < 0)
+            {
+                isBlocking = false;
+            }
+        }
+
+
+        return isBlocking;
     }
-    
+
+
+
+    public void OnLanding()
+    {
+        isJumping = false;
+        animator.SetBool("IsJumping", false);
+        
+    }
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player")
         {
             isTouching = true;
-
         }
     }
 
@@ -192,20 +207,6 @@ public class Player1 : MonoBehaviour
         if (collision.gameObject.tag == "Player")
         {
             isTouching = false;
-
         }
-    }
-
-    IEnumerator Dash(float direction){
-        isDashing = true;
-        
-        rb.velocity = new Vector2(rb.velocity.x, 0f);
-        rb.AddForce(new Vector2(dashDistance * direction, 0f), ForceMode2D.Impulse);
-        float gravity = rb.gravityScale;
-        rb.gravityScale = 0;
-        yield return new WaitForSeconds(0.15f);
-        isDashing = false;
-        
-        rb.gravityScale = gravity;
     }
 }
