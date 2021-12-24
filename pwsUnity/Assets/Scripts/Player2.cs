@@ -15,18 +15,16 @@ public class Player2 : MonoBehaviour
     Vector2 currentMovement;
     Vector2 currentAttack;
 
-    private float runSpeed = 10f;
+    
     private float horizontalMove;
     private float nextAttackTime;
     private float nextJumpTime;
     private bool isJumping;
     private bool isTouching;
-    private bool attackPressed;
-    private int damage;
-
+    private bool attackPressed;  
     private int currentHealth;
-    private int maxHealth = 100;
     public bool isBlocking;
+    
 
     void Awake()
     {
@@ -45,7 +43,7 @@ public class Player2 : MonoBehaviour
 
     private void Start()
     {
-        
+        int maxHealth = 100;
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
     }
@@ -62,6 +60,8 @@ public class Player2 : MonoBehaviour
 
     void Update()
     {
+        
+        
         Move();
         AttackInput();
         Blocking();
@@ -79,16 +79,16 @@ public class Player2 : MonoBehaviour
         isJumping = false;
     }
 
-    public void GetHealth(int damage)
+    public void GetHealth(int dmg)
     {
-        currentHealth -= damage;
+        currentHealth -= dmg;
         healthBar.SetHealth(currentHealth);
     }
 
     void Move()
     {
+        float runSpeed = 10f;
 
-       
         horizontalMove = currentMovement.x * runSpeed;
 
         bool isCrouching = false;
@@ -114,12 +114,12 @@ public class Player2 : MonoBehaviour
 
             animator.SetBool("IsCrouching", false);
         }
-
+        animator.SetFloat("PlayerMovement", -currentMovement.x);
     }
 
     void AttackInput()
     {
-
+        int damage = 0;
         float cooldownTime = 0.2f;
 
         if (Time.time > nextAttackTime)
@@ -137,17 +137,19 @@ public class Player2 : MonoBehaviour
                 damage = 30;
             }
 
+            animator.SetInteger("PlayerDamage", damage);
             if (attackPressed)
             {
                 if (isTouching && enemy.Blocking())
                 {
                     enemy.GetHealth(damage);
-                    damage = 0;
+
                     nextAttackTime = Time.time + cooldownTime;
                 }
 
             }
         }
+       
     }
 
     public bool Blocking()
@@ -155,6 +157,7 @@ public class Player2 : MonoBehaviour
         float playerLocation = transform.position.x;
         float enemyLocation = enemy.transform.position.x;
         float playerDistance = enemyLocation - playerLocation;
+        
         if (playerDistance <= 0)
         {
             if (currentMovement.x < 0)

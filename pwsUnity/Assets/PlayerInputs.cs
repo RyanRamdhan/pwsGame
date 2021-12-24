@@ -30,7 +30,7 @@ public class @PlayerInputs : IInputActionCollection, IDisposable
                     ""name"": ""Attack"",
                     ""type"": ""Value"",
                     ""id"": ""6156a749-5ae8-4250-88c6-143144b7ee7e"",
-                    ""expectedControlType"": """",
+                    ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
                 }

@@ -614,7 +614,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 1
+  orthographic size: 1.2400632
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -638,7 +638,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0.25, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -777,6 +777,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1044839256423666483, guid: 0f14bec406ebbc149ab5ebb0dae00ae2, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1044839256423666490, guid: 0f14bec406ebbc149ab5ebb0dae00ae2, type: 3}
       propertyPath: m_Actions
       value: 
@@ -871,6 +875,10 @@ PrefabInstance:
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 1776086030}
+    - target: {fileID: 1044839256423666483, guid: 0f14bec406ebbc149ab5ebb0dae00ae2, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1044839256423666490, guid: 0f14bec406ebbc149ab5ebb0dae00ae2, type: 3}
       propertyPath: m_DefaultControlScheme
       value: Controller

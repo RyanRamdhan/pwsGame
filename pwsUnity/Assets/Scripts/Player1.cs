@@ -1,9 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
-
-
 
 public class Player1 : MonoBehaviour
 {   
@@ -18,20 +15,16 @@ public class Player1 : MonoBehaviour
     Vector2 currentMovement;
     Vector2 currentAttack;
 
-    private float runSpeed = 10f;
+    
     private float horizontalMove;
     private float nextAttackTime;
     private float nextJumpTime;
     private bool isJumping;
     private bool isTouching;
-    private bool attackPressed;
-    private int damage;
-    private float playerLocation;
-    private float enemyLocation;
-    
+    private bool attackPressed;   
     private int currentHealth;
-    private int maxHealth = 100;
-    public bool isBlocking;
+    public bool isBlocking = false;
+
 
     void Awake()
     {
@@ -50,7 +43,7 @@ public class Player1 : MonoBehaviour
 
     private void Start()
     {
-        
+        int maxHealth = 100;
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
     }
@@ -64,14 +57,12 @@ public class Player1 : MonoBehaviour
     }
 
     void Update() {
-        //Debug.Log(currentMovement);
         
         Move();
         AttackInput();
         Blocking();
-        playerLocation = transform.position.x;
-        enemyLocation = enemy.transform.position.x;
-        Debug.Log(currentAttack);
+        
+        
         if (currentHealth <= 0)
         {
             Destroy(gameObject);
@@ -84,16 +75,16 @@ public class Player1 : MonoBehaviour
         isJumping = false;
     }
 
-    public void GetHealth(int damage)
+    public void GetHealth(int dmg)
     {
-        currentHealth -= damage;
+        currentHealth -= dmg;
         healthBar.SetHealth(currentHealth);
     }
 
     void Move(){
+        float runSpeed = 10f;
 
-        
-        horizontalMove = currentMovement.x * runSpeed;
+    horizontalMove = currentMovement.x * runSpeed;
 
         bool isCrouching = false;
         float cooldownTime = 1.4f;
@@ -118,12 +109,12 @@ public class Player1 : MonoBehaviour
 
             animator.SetBool("IsCrouching", false);
         }
-        
+        animator.SetFloat("PlayerMovement", currentMovement.x);
     }
 
     void AttackInput()
     {
-        
+        int damage = 0;
         float cooldownTime = 0.2f;
 
         if (Time.time > nextAttackTime)
@@ -141,23 +132,28 @@ public class Player1 : MonoBehaviour
                 damage = 30;
             }
 
+            animator.SetInteger("PlayerDamage", damage);
             if (attackPressed)
             {
                 if (isTouching && enemy.Blocking())
                 {
                     enemy.GetHealth(damage);
-                    damage = 0;
+                    
                     nextAttackTime = Time.time + cooldownTime;
                 }
                 
             }
         }
+        
+        
     }
 
     public bool Blocking()
     {
+        float playerLocation = transform.position.x;
+        float enemyLocation = enemy.transform.position.x;
         
-        float playerDistance = enemyLocation - playerLocation;
+    float playerDistance = enemyLocation - playerLocation;
         if(playerDistance <= 0)
         {
             if (currentMovement.x < 0)
